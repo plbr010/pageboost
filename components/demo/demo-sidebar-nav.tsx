@@ -15,7 +15,7 @@ const sections: { hash: string; label: string; icon: LucideIcon; highlight?: boo
 
 function sideNavItemClass(highlight?: boolean) {
   return cn(
-    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150",
     "text-slate-400 hover:bg-white/5 hover:text-white",
     highlight && "text-amber-200/90 hover:text-amber-100",
   );

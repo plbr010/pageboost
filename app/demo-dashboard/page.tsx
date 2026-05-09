@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import DemoLoader from "./demo-loader";
+import DemoClient from "./demo-client";
 
 /**
  * TEMPORARY public UX audit route — no auth, no Supabase, fake data only.
@@ -11,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function DemoDashboardPage() {
-  return <DemoLoader />;
+  return <DemoClient />;
 }

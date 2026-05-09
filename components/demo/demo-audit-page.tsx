@@ -21,7 +21,7 @@ import { DemoShell } from "@/components/demo/demo-shell";
 import { DemoStatCard } from "@/components/demo/demo-stat-card";
 import { DemoKanbanBoard } from "@/components/demo/demo-kanban-board";
 import { DemoNewLeadModal } from "@/components/demo/demo-new-lead-modal";
-import { buildInitialDemoLeads, DEMO_ORG_SETTINGS, DEMO_PIPELINE_ORDER as ORDER } from "@/lib/demo-audit-data";
+import { DEMO_LEADS_INITIAL, DEMO_ORG_SETTINGS, DEMO_PIPELINE_ORDER as ORDER } from "@/lib/demo-audit-data";
 import { aggregateLeadStats } from "@/lib/dashboard-stats";
 import { conversionRatePercent, filterAttentionLeads, leadsCreatedPerDay } from "@/lib/dashboard-analytics";
 import { attentionLabel, formatParado, leadNeedsAttention } from "@/lib/followup";
@@ -48,7 +48,7 @@ function rel(iso: string) {
 }
 
 export function DemoAuditPage() {
-  const [leads, setLeads] = useState<LeadRow[]>(() => buildInitialDemoLeads());
+  const [leads, setLeads] = useState<LeadRow[]>(DEMO_LEADS_INITIAL);
   const [modalOpen, setModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 

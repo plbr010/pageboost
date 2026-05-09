@@ -26,7 +26,7 @@ export function DemoStatCard({
 
   return (
     <div
-      className={`rounded-2xl border border-slate-200/80 bg-gradient-to-br ${ring} p-5 shadow-sm ring-1 transition-shadow hover:shadow-md`}
+      className={`rounded-2xl border border-slate-200/80 bg-gradient-to-br ${ring} p-5 shadow-sm ring-1`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="rounded-lg bg-white/95 p-2 ring-1 ring-slate-200/60">

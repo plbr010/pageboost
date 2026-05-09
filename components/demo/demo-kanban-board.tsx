@@ -46,11 +46,11 @@ const DemoLeadCard = memo(function DemoLeadCard({ lead, index }: { lead: LeadRow
           ref={provided.innerRef}
           {...provided.draggableProps}
           className={cn(
-            "scroll-mt-40 rounded-xl border bg-white p-3.5 shadow-md ring-1 transition-all duration-200",
-            colFollowUp && "border-violet-300 ring-violet-200/80 shadow-violet-500/10",
-            !colFollowUp && banner && "border-amber-200 ring-amber-100/90 shadow-amber-500/5",
+            "scroll-mt-40 rounded-xl border bg-white p-3.5 shadow-sm ring-1",
+            colFollowUp && "border-violet-300 ring-violet-200/80",
+            !colFollowUp && banner && "border-amber-200 ring-amber-100/90",
             !colFollowUp && !banner && "border-slate-200/90 ring-slate-100",
-            snapshot.isDragging && "scale-[1.02] rotate-1 shadow-2xl ring-2 ring-indigo-300/60",
+            snapshot.isDragging && "ring-2 ring-indigo-400/80 shadow-md",
           )}
         >
           <div className="flex items-start gap-2">
@@ -168,10 +168,10 @@ export function DemoKanbanBoard({
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                   className={cn(
-                    "min-h-[360px] flex-1 space-y-2.5 rounded-2xl border-2 border-dashed p-2.5 transition-all duration-200",
-                    status === "follow_up" && "border-violet-200/80 bg-gradient-to-b from-violet-50/90 to-violet-50/20",
+                    "min-h-[360px] flex-1 space-y-2.5 rounded-2xl border-2 border-dashed p-2.5",
+                    status === "follow_up" && "border-violet-200/80 bg-violet-50/60",
                     status !== "follow_up" && "border-slate-200/80 bg-slate-100/50",
-                    snapshot.isDraggingOver && "border-indigo-400 bg-indigo-50/70 ring-2 ring-indigo-200/50",
+                    snapshot.isDraggingOver && "border-indigo-400 bg-indigo-50/80 ring-1 ring-indigo-200/60",
                   )}
                 >
                   {grouped[status].map((lead, index) => (
