@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PageBoost (MVP simples)
 
-## Getting Started
+**Página pública de captura** (`/l/[slug]`) + **salvar lead no Supabase** + **abrir WhatsApp com mensagem pronta** + **Kanban manual** no painel. Sem ERP, sem API oficial do WhatsApp, sem leitura de mensagens.
 
-First, run the development server:
+## Supabase (instalação)
+
+1. Crie um projeto em [Supabase](https://supabase.com).
+2. Em **SQL Editor**, execute o arquivo `supabase/migrations/20260504000000_mvp.sql` (projeto novo).
+3. **Authentication → Email** habilitado. Para testar rápido, pode desativar confirmação de e-mail.
+4. Copie **URL** e **anon key** para `.env.local` (veja `.env.local.example`).
+
+> Se você já tinha rodado uma versão antiga deste repositório (com ERP / token de ingestão), o ideal é **criar um projeto Supabase novo** e rodar só o SQL atual — evita conflito de schema.
+
+## Variáveis de ambiente
+
+Copie `.env.local.example` para `.env.local` (ou edite o `.env.local` já criado).
+
+- `NEXT_PUBLIC_SUPABASE_URL` — **Project URL**
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — chave **Publishable** (`sb_publishable_...`) **ou**, se o painel ainda mostrar, a chave legada **anon** (`eyJ...`)
+- `NEXT_PUBLIC_APP_URL` (opcional)
+
+**Não** coloque `sb_secret_` / `service_role` no Next.js: isso é chave de servidor com acesso total e não deve ir em variável `NEXT_PUBLIC_*` nem no browser. Este MVP não precisa dela.
+
+A captura pública usa funções SQL (`SECURITY DEFINER`) liberadas para o papel `anon`.
+
+## Rodar
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Fluxo de teste
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Crie conta em `/login` — na primeira entrada, o sistema cria sua **organização** e um **slug** inicial.
+2. Vá em **Configurações**: preencha **WhatsApp** (ex.: `5511999998888` ou `11999998888`), ajuste **slug**, título e texto da landing.
+3. Abra em aba anônima `/l/seu-slug`, preencha o formulário e clique **Chamar no WhatsApp** → o lead deve aparecer no **Painel** e no **Kanban** como **Novo**.
+4. No Kanban, arraste o card entre colunas; use **Atualizar** no card para renovar o relógio da etapa (afeta os alertas por tempo).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Rotas
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Rota | Uso |
+|------|-----|
+| `/` | Site comercial + plano Founder |
+| `/login` | Acesso |
+| `/dashboard` | Números por etapa |
+| `/crm` | Kanban (`?alerta=1` filtra atenção) |
+| `/configuracao` | Nome, slug, WhatsApp, textos da landing |
+| `/l/[slug]` | Landing pública |
