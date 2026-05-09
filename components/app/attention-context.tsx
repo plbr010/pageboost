@@ -20,7 +20,7 @@ export function AttentionProvider({
   children: React.ReactNode;
 }) {
   const [count, setCount] = useState(initialCount);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     setCount(initialCount);
