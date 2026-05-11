@@ -58,6 +58,7 @@ export function NewLeadModal({
     }
     setLoading(true);
     try {
+      const now = new Date().toISOString();
       const supabase = createClient();
       const { error } = await supabase.from("leads").insert({
         organization_id: organizationId,
@@ -67,6 +68,9 @@ export function NewLeadModal({
         observacao: observacao.trim() ? observacao.trim() : null,
         status,
         origem: toDbOrigem(origemUi),
+        created_at: now,
+        updated_at: now,
+        status_updated_at: now,
       });
       if (error) throw error;
       reset();
@@ -91,7 +95,7 @@ export function NewLeadModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="new-lead-title"
-        className="relative z-10 flex max-h-[92dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-2xl border border-slate-200/90 bg-white shadow-2xl sm:max-h-[85dvh] sm:rounded-2xl"
+        className="relative z-10 flex max-h-[92dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-2xl border border-slate-200/90 bg-white shadow-xl sm:max-h-[85dvh] sm:rounded-2xl"
       >
         <div className="shrink-0 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-5 py-4 sm:px-6">
           <div className="flex items-start justify-between gap-3">
@@ -99,7 +103,9 @@ export function NewLeadModal({
               <h2 id="new-lead-title" className="text-lg font-bold tracking-tight text-slate-900">
                 Novo lead
               </h2>
-              <p className="mt-1 text-sm text-slate-500">Cadastro manual aparece no Kanban na etapa que você escolher.</p>
+              <p className="mt-1 text-sm text-slate-600">
+                Inclua o contato no funil. O card aparece na etapa inicial que você selecionar.
+              </p>
             </div>
             <button
               type="button"
@@ -116,7 +122,7 @@ export function NewLeadModal({
           onSubmit={(e) => void onSubmit(e)}
           className="flex min-h-0 flex-1 flex-col overflow-hidden sm:max-h-[min(70dvh,640px)]"
         >
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-5 sm:px-6">
+          <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-6 sm:px-6">
             {err && (
               <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800">{err}</p>
             )}
@@ -140,7 +146,7 @@ export function NewLeadModal({
                 className="pb-input font-mono text-sm"
                 placeholder="5511999998888"
               />
-              <p className="mt-1 text-xs text-slate-500">Com DDI, sem espaços, como no WhatsApp.</p>
+              <p className="mt-1 text-xs text-slate-500">Inclua DDI (ex.: 55) e apenas números, como no WhatsApp.</p>
             </div>
             <div>
               <label className="pb-label">Interesse</label>
@@ -178,7 +184,7 @@ export function NewLeadModal({
                     </option>
                   ))}
                 </select>
-                <p className="mt-1 text-xs text-slate-500">Coluna onde o card aparece ao salvar.</p>
+                <p className="mt-1 text-xs text-slate-500">Coluna em que o card aparece ao salvar.</p>
               </div>
               <div>
                 <label className="pb-label">Origem</label>
@@ -188,14 +194,18 @@ export function NewLeadModal({
                   className="pb-input cursor-pointer bg-white py-2.5"
                 >
                   <option value="manual">Manual</option>
-                  <option value="site">Site</option>
+                  <option value="site">Página pública</option>
                 </select>
-                <p className="mt-1 text-xs text-slate-500">“Site” marca como se tivesse vindo da página pública.</p>
+                <p className="mt-1 text-xs text-slate-500">
+                  <strong className="font-medium text-slate-700">Manual:</strong> você cadastrou no painel.{" "}
+                  <strong className="font-medium text-slate-700">Página pública:</strong> indica que o contato veio do
+                  formulário do site.
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-slate-100 bg-slate-50/90 px-5 py-4 sm:px-6">
+          <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-slate-100 bg-slate-50/95 px-5 py-4 sm:px-6">
             <button
               type="button"
               onClick={handleClose}
@@ -203,8 +213,8 @@ export function NewLeadModal({
             >
               Cancelar
             </button>
-            <button type="submit" disabled={loading} className="pb-btn-primary px-6 py-2.5">
-              {loading ? "Salvando…" : "Criar lead"}
+            <button type="submit" disabled={loading} className="pb-btn-primary px-6 py-2.5 font-semibold">
+              {loading ? "Salvando…" : "Salvar lead"}
             </button>
           </div>
         </form>

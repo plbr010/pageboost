@@ -6,6 +6,7 @@ import { NewLeadButton } from "@/components/leads/new-lead-button";
 import { leadNeedsAttention } from "@/lib/followup";
 import type { LeadRow } from "@/lib/types";
 import { KanbanSquare } from "lucide-react";
+import { LEAD_LIST_COLUMNS } from "@/lib/leads-columns";
 
 export const dynamic = "force-dynamic";
 
@@ -23,9 +24,10 @@ export default async function CrmPage({
 
   const { data: raw, error } = await supabase
     .from("leads")
-    .select("*")
+    .select(LEAD_LIST_COLUMNS)
     .eq("organization_id", organizationId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(400);
 
   if (error) {
     return (

@@ -2,23 +2,20 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/cn";
 import { LogoWordmark } from "@/components/brand/logo";
 import { Check, LayoutGrid, Loader2, Bell } from "lucide-react";
 
 const miniBenefits = [
-  { icon: LayoutGrid, text: "Página profissional para captar contatos" },
+  { icon: LayoutGrid, text: "Página pública para captar interessados" },
   { icon: Check, text: "Leads organizados no Kanban" },
-  { icon: Bell, text: "Follow-up e alertas no painel" },
+  { icon: Bell, text: "Follow-up para não esquecer retornos" },
 ] as const;
 
-export default function LoginClient() {
+export default function LoginClient({ next, error }: { next: string; error?: string }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/dashboard";
-  const error = searchParams.get("error");
 
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -70,20 +67,27 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="min-h-dvh bg-slate-100 text-slate-900 lg:grid lg:grid-cols-[1fr_min(100%,480px)] xl:grid-cols-[1fr_520px]">
-      {/* Painel de valor — desktop */}
-      <aside className="relative hidden flex-col justify-between bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-10 py-12 text-white lg:flex xl:px-14">
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(99,102,241,0.12)_0%,transparent_45%,rgba(124,58,237,0.08)_100%)]" />
+    <div className="min-h-dvh bg-slate-50 text-slate-900 lg:grid lg:grid-cols-[1fr_min(100%,480px)] xl:grid-cols-[1fr_520px]">
+      <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#0c1020] px-10 py-12 text-white lg:flex xl:px-14">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-90"
+          style={{
+            background:
+              "radial-gradient(120% 80% at 20% 0%, rgba(79,70,229,0.35) 0%, transparent 50%), radial-gradient(80% 60% at 100% 100%, rgba(91,33,182,0.25) 0%, transparent 45%)",
+          }}
+          aria-hidden
+        />
         <div className="relative">
           <Link href="/" className="inline-block pb-focus">
             <LogoWordmark size="md" variant="onDark" />
           </Link>
-          <h2 className="mt-10 max-w-md text-2xl font-semibold leading-snug tracking-tight xl:text-3xl">
-            Página pública + painel para não perder nenhum lead do WhatsApp.
+          <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300/90">PageBoost</p>
+          <h2 className="mt-3 max-w-md text-2xl font-semibold leading-snug tracking-tight xl:text-3xl">
+            Organize seus leads antes que eles esfriem.
           </h2>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-400">
-            Formulário na sua landing, lead salvo antes de abrir o conversa, funil simples e avisos quando a negociação
-            esfria.
+            Uma página profissional para captar contatos, um painel com Kanban e alertas de follow-up quando a
+            negociação para na mesma etapa.
           </p>
         </div>
         <ul className="relative space-y-4 pb-4">
@@ -98,17 +102,16 @@ export default function LoginClient() {
         </ul>
       </aside>
 
-      {/* Formulário */}
       <main className="flex flex-col justify-center px-4 py-10 sm:px-8 sm:py-14 lg:px-12">
         <div className="mx-auto w-full max-w-md">
           <div className="mb-8 text-center lg:hidden">
             <Link href="/" className="inline-flex pb-focus">
               <LogoWordmark size="md" variant="onLight" />
             </Link>
-            <p className="mt-3 text-sm text-slate-600">Entre para acessar seu painel e sua página pública.</p>
+            <p className="mt-3 text-sm text-slate-600">Acesse seu painel e configure sua página pública.</p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_8px_30px_rgba(15,23,42,0.06)] sm:p-8">
+          <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_4px_24px_rgba(15,23,42,0.06)] sm:p-8">
             <div className="flex rounded-xl border border-slate-200 bg-slate-50 p-1">
               <button
                 type="button"
@@ -141,8 +144,8 @@ export default function LoginClient() {
             <div className="mt-5 space-y-3">
               {error === "config" && (
                 <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-                  Configure <code className="rounded bg-amber-100/80 px-1.5 py-0.5 font-mono text-xs">.env.local</code>{" "}
-                  com URL e chave do Supabase.
+                  O sistema ainda não está configurado para login. Peça ao responsável pela conta para revisar as
+                  variáveis de ambiente do projeto (URL e chave do Supabase).
                 </p>
               )}
               {error === "auth" && (
@@ -206,7 +209,7 @@ export default function LoginClient() {
               <button
                 type="submit"
                 disabled={loading}
-                className="pb-btn-primary mt-2 flex w-full py-3.5 text-[15px] font-semibold disabled:pointer-events-none"
+                className="pb-btn-primary mt-2 flex w-full items-center justify-center gap-2 py-3.5 text-[15px] font-semibold disabled:pointer-events-none disabled:opacity-60"
               >
                 {loading ? (
                   <>

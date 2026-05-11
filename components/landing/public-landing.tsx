@@ -77,8 +77,8 @@ export function PublicLanding({ org, slug }: { org: PublicOrgPayload; slug: stri
   return (
     <div className="relative min-h-full overflow-hidden bg-[#050814] text-slate-100">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-[-25%] h-[480px] w-[900px] -translate-x-1/2 rounded-full bg-indigo-600/20 blur-[100px]" />
-        <div className="absolute bottom-[-15%] right-[-5%] h-[360px] w-[480px] rounded-full bg-violet-600/15 blur-[90px]" />
+        <div className="absolute left-1/2 top-[-20%] h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-indigo-600/18 blur-[56px]" />
+        <div className="absolute bottom-[-10%] right-[-5%] h-[280px] w-[400px] rounded-full bg-violet-600/12 blur-[48px]" />
       </div>
 
       <div className="relative mx-auto max-w-lg px-5 py-14 md:py-20">
@@ -188,8 +188,8 @@ export function PublicLanding({ org, slug }: { org: PublicOrgPayload; slug: stri
             <div className="mt-6 flex items-start gap-2 rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
               <Shield className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
               <p className="text-left text-[11px] leading-relaxed text-slate-500">
-                Primeiro salvamos seu contato no painel da empresa; em seguida abrimos o WhatsApp com uma mensagem
-                pronta. Não há leitura automática de conversas nem integração com API oficial do WhatsApp neste fluxo.
+                Primeiro seu contato é salvo no painel da empresa; em seguida o WhatsApp abre com uma mensagem pronta
+                para você continuar por lá.
               </p>
             </div>
           </div>

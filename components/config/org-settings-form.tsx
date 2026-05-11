@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { OrgRow } from "@/lib/types";
 import { getPublicBaseUrlClient } from "@/lib/url-client";
-import { Building2, Check, Copy, Globe, MessageCircle, Sparkles } from "lucide-react";
+import { Building2, Check, Copy, ExternalLink, Globe, MessageCircle } from "lucide-react";
 
 function slugify(input: string) {
   return input
@@ -104,40 +104,61 @@ export function OrgSettingsForm({ organization }: { organization: OrgRow }) {
         </div>
       )}
 
-      {/* Sua página pública */}
+      {/* Link público */}
       <section className="pb-card overflow-hidden p-6 md:p-8">
         <div className="flex flex-col gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/25">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-md">
               <Globe className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold tracking-tight text-slate-900">Sua página pública</h2>
+              <h2 className="text-lg font-bold tracking-tight text-slate-900">Link público da página</h2>
               <p className="mt-1 max-w-xl text-sm leading-relaxed text-slate-600">
-                É a página que o cliente abre, preenche e envia antes de ir para o WhatsApp. O link abaixo é o que você
-                divulga (Instagram, cartão, QR code).
+                Sua página pública é onde o cliente preenche nome, telefone e interesse antes de abrir o WhatsApp.
+                Copie esse link e coloque na bio do Instagram, anúncio, cartão digital ou envie no direct.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Link público</p>
-          <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="min-w-0 break-all font-mono text-sm font-medium text-slate-800">{publicUrl}</p>
-            <CopyLinkButton url={publicUrl} />
+        <div className="mt-6 space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Seu link</p>
+          <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50/90 p-4 sm:flex-row sm:items-stretch sm:justify-between sm:gap-3">
+            <p className="min-w-0 flex-1 break-all font-mono text-sm font-medium text-slate-800">{publicUrl}</p>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <CopyLinkButton url={publicUrl} />
+              <a
+                href={publicUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50/80"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Abrir página
+              </a>
+            </div>
           </div>
-          <p className="text-xs text-slate-500">
-            Em produção, defina{" "}
-            <code className="rounded border border-slate-200 bg-white px-1 py-0.5 font-mono text-[11px]">
-              NEXT_PUBLIC_APP_URL
-            </code>{" "}
-            para o domínio certo aparecer aqui.
-          </p>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-slate-200/90 bg-gradient-to-b from-slate-50 to-white p-5 shadow-inner">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Prévia do que o visitante vê</p>
+        <div className="mt-6 rounded-xl border border-slate-200 bg-white px-4 py-4">
+          <label className="flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              checked={ativo}
+              onChange={(e) => setAtivo(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <span>
+              <span className="block text-sm font-semibold text-slate-900">Página ativa para receber leads</span>
+              <span className="mt-0.5 block text-xs leading-relaxed text-slate-600">
+                Desative se quiser pausar temporariamente a entrada de novos leads pela página.
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <div className="mt-8 rounded-2xl border border-slate-200/90 bg-slate-50/80 p-5">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Prévia da página pública</p>
           <p className="mt-3 text-lg font-semibold leading-snug text-slate-900">{titulo || "Título da página"}</p>
           <p className="mt-2 text-sm leading-relaxed text-slate-600">
             {descricao || "Descrição curta aparecerá aqui."}
@@ -145,18 +166,13 @@ export function OrgSettingsForm({ organization }: { organization: OrgRow }) {
           <div className="mt-4 h-2 w-24 rounded-full bg-slate-200" aria-hidden />
         </div>
 
-        <div className="mt-8 space-y-6">
-          <div>
-            <label className="pb-label">Título na página</label>
-            <input
-              className="pb-input"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              required
-            />
-            <p className="mt-1.5 text-xs text-slate-500">Principal frase no topo da página pública.</p>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label className="pb-label">Título da página pública</label>
+            <input className="pb-input" value={titulo} onChange={(e) => setTitulo(e.target.value)} required />
+            <p className="mt-1.5 text-xs text-slate-500">Frase principal no topo da página que o cliente vê.</p>
           </div>
-          <div>
+          <div className="sm:col-span-2">
             <label className="pb-label">Descrição</label>
             <textarea
               rows={4}
@@ -166,23 +182,6 @@ export function OrgSettingsForm({ organization }: { organization: OrgRow }) {
               required
             />
             <p className="mt-1.5 text-xs text-slate-500">Texto de apoio logo abaixo do título.</p>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 bg-slate-50/90 px-4 py-4">
-            <label className="flex cursor-pointer items-start gap-3">
-              <input
-                type="checkbox"
-                checked={ativo}
-                onChange={(e) => setAtivo(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-              />
-              <span>
-                <span className="block text-sm font-semibold text-slate-900">Página no ar</span>
-                <span className="mt-0.5 block text-xs leading-relaxed text-slate-600">
-                  Desativar pausa o formulário: visitantes não enviam novos leads até você ligar de novo.
-                </span>
-              </span>
-            </label>
           </div>
         </div>
       </section>
@@ -196,7 +195,7 @@ export function OrgSettingsForm({ organization }: { organization: OrgRow }) {
           <div>
             <h2 className="text-lg font-bold tracking-tight text-slate-900">Empresa e WhatsApp</h2>
             <p className="mt-1 text-sm text-slate-600">
-              Nome interno, endereço da URL e número (com DDI) para onde o botão de WhatsApp aponta após o envio do
+              Nome exibido na página, endereço do link e número (com DDI) para onde o botão leva após o envio do
               formulário.
             </p>
           </div>
@@ -204,10 +203,7 @@ export function OrgSettingsForm({ organization }: { organization: OrgRow }) {
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="pb-label flex items-center gap-2">
-              <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
-              Nome da empresa
-            </label>
+            <label className="pb-label">Nome da empresa</label>
             <input className="pb-input" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div>

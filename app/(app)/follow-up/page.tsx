@@ -5,6 +5,7 @@ import { attentionLabel, formatParado, leadNeedsAttention } from "@/lib/followup
 import { STATUS_LABELS } from "@/lib/status";
 import type { LeadRow } from "@/lib/types";
 import { buildWhatsappUrl } from "@/lib/whatsapp";
+import { LEAD_LIST_COLUMNS } from "@/lib/leads-columns";
 import { ResetStatusClockButton } from "@/components/leads/reset-status-clock-button";
 import { Bell, ExternalLink, LayoutGrid, Pencil } from "lucide-react";
 
@@ -16,9 +17,10 @@ export default async function FollowUpPage() {
 
   const { data, error } = await supabase
     .from("leads")
-    .select("*")
+    .select(LEAD_LIST_COLUMNS)
     .eq("organization_id", organizationId)
-    .order("status_updated_at", { ascending: true });
+    .order("status_updated_at", { ascending: true })
+    .limit(400);
 
   if (error) {
     return (

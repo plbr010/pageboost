@@ -9,6 +9,7 @@ import {
 } from "@hello-pangea/dnd";
 import { createClient } from "@/lib/supabase/client";
 import { followupBanner, isFollowUpColumn } from "@/lib/followup";
+import { LEAD_LIST_COLUMNS } from "@/lib/leads-columns";
 import { PIPELINE_STATUSES, STATUS_LABELS } from "@/lib/status";
 import type { LeadRow, LeadStatus } from "@/lib/types";
 import { cn } from "@/lib/cn";
@@ -29,6 +30,10 @@ function groupByStatus(leads: LeadRow[]): Record<LeadStatus, LeadRow[]> {
   return map;
 }
 
+function flattenOrdered(grouped: Record<LeadStatus, LeadRow[]>): LeadRow[] {
+  return PIPELINE_STATUSES.flatMap((s) => grouped[s]);
+}
+
 const LeadCard = memo(function LeadCard({ lead, index }: { lead: LeadRow; index: number }) {
   const banner = followupBanner(lead.status, lead.status_updated_at);
   const colFollowUp = isFollowUpColumn(lead.status);
@@ -45,11 +50,11 @@ const LeadCard = memo(function LeadCard({ lead, index }: { lead: LeadRow; index:
           ref={provided.innerRef}
           {...provided.draggableProps}
           className={cn(
-            "scroll-mt-40 rounded-xl border bg-white p-3.5 shadow-md ring-1 transition-all duration-200",
-            colFollowUp && "border-violet-300 ring-violet-200/80 shadow-violet-500/10",
-            !colFollowUp && banner && "border-amber-200 ring-amber-100/90 shadow-amber-500/5",
-            !colFollowUp && !banner && "border-slate-200/90 ring-slate-100",
-            snapshot.isDragging && "scale-[1.02] rotate-1 shadow-2xl ring-2 ring-indigo-300/60",
+            "scroll-mt-40 rounded-xl border bg-white p-3.5 shadow-sm ring-1 ring-slate-200/80",
+            colFollowUp && "border-violet-300 ring-violet-200/70",
+            !colFollowUp && banner && "border-amber-200 ring-amber-100/80",
+            !colFollowUp && !banner && "border-slate-200/90",
+            snapshot.isDragging && "ring-2 ring-indigo-400/70 shadow-md",
           )}
         >
           <div className="flex items-start gap-2">
@@ -111,9 +116,12 @@ export function KanbanBoard({
   focusLeadId?: string | null;
 }) {
   const [leads, setLeads] = useState<LeadRow[]>(initialLeads);
+  const [persistError, setPersistError] = useState<string | null>(null);
+
   useEffect(() => {
     setLeads(initialLeads);
   }, [initialLeads]);
+
   const grouped = useMemo(() => groupByStatus(leads), [leads]);
 
   useEffect(() => {
@@ -135,66 +143,111 @@ export function KanbanBoard({
       return;
     }
 
-    const newStatus = destination.droppableId as LeadStatus;
-    const id = draggableId;
+    const sourceCol = source.droppableId as LeadStatus;
+    const destCol = destination.droppableId as LeadStatus;
+
+    if (sourceCol === destCol) {
+      setPersistError(null);
+      setLeads((prev) => {
+        const g = groupByStatus(prev);
+        const list = [...g[sourceCol]];
+        const fromIndex = list.findIndex((l) => l.id === draggableId);
+        if (fromIndex < 0) return prev;
+        const [moved] = list.splice(fromIndex, 1);
+        list.splice(destination.index, 0, moved);
+        g[sourceCol] = list;
+        return flattenOrdered(g);
+      });
+      return;
+    }
+
+    const now = new Date().toISOString();
+    let rollback: LeadRow[] = [];
 
     setLeads((prev) => {
-      const moved = prev.find((l) => l.id === id);
-      if (!moved) return prev;
-      return prev.map((l) => (l.id === id ? { ...l, status: newStatus } : l));
+      rollback = [...prev];
+      const g = groupByStatus(prev);
+      const start = [...g[sourceCol]];
+      const fromIndex = start.findIndex((l) => l.id === draggableId);
+      if (fromIndex < 0) return prev;
+      const [moved] = start.splice(fromIndex, 1);
+      const updatedLead: LeadRow = {
+        ...moved,
+        status: destCol,
+        status_updated_at: now,
+        updated_at: now,
+      };
+      const finish = [...g[destCol]];
+      finish.splice(destination.index, 0, updatedLead);
+      g[sourceCol] = start;
+      g[destCol] = finish;
+      return flattenOrdered(g);
     });
 
     const supabase = createClient();
     const { data, error } = await supabase
       .from("leads")
-      .update({ status: newStatus })
-      .eq("id", id)
-      .select("*")
+      .update({
+        status: destCol,
+        status_updated_at: now,
+        updated_at: now,
+      })
+      .eq("id", draggableId)
+      .select(LEAD_LIST_COLUMNS)
       .single();
 
     if (error || !data) {
-      window.location.reload();
+      setLeads(rollback);
+      setPersistError("Não foi possível salvar a etapa. Verifique sua conexão e tente de novo.");
       return;
     }
 
-    setLeads((cur) => cur.map((l) => (l.id === id ? (data as LeadRow) : l)));
+    setPersistError(null);
+    setLeads((cur) => cur.map((l) => (l.id === draggableId ? (data as LeadRow) : l)));
   }, []);
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex gap-5 overflow-x-auto pb-6 pt-1">
-        {PIPELINE_STATUSES.map((status) => (
-          <div key={status} className="flex w-[280px] shrink-0 flex-col sm:w-[300px]">
-            <div className="mb-3 flex items-center justify-between px-1">
-              <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
-                {STATUS_LABELS[status]}
-              </h2>
-              <span className="rounded-full bg-slate-200/80 px-2 py-0.5 text-[11px] font-bold tabular-nums text-slate-700">
-                {grouped[status].length}
-              </span>
+    <div className="space-y-3">
+      {persistError && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900" role="alert">
+          {persistError}
+        </div>
+      )}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="flex gap-5 overflow-x-auto pb-6 pt-1">
+          {PIPELINE_STATUSES.map((status) => (
+            <div key={status} className="flex w-[280px] shrink-0 flex-col sm:w-[300px]">
+              <div className="mb-3 flex items-center justify-between px-1">
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                  {STATUS_LABELS[status]}
+                </h2>
+                <span className="rounded-full bg-slate-200/80 px-2 py-0.5 text-[11px] font-bold tabular-nums text-slate-700">
+                  {grouped[status].length}
+                </span>
+              </div>
+              <Droppable droppableId={status}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={cn(
+                      "min-h-[360px] flex-1 space-y-2.5 rounded-2xl border-2 border-dashed p-2.5",
+                      status === "follow_up" && "border-violet-200/80 bg-violet-50/50",
+                      status !== "follow_up" && "border-slate-200/80 bg-slate-100/50",
+                      snapshot.isDraggingOver && "border-indigo-400 bg-indigo-50/80 ring-1 ring-indigo-200/60",
+                    )}
+                  >
+                    {grouped[status].map((lead, index) => (
+                      <LeadCard key={lead.id} lead={lead} index={index} />
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
             </div>
-            <Droppable droppableId={status}>
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className={cn(
-                    "min-h-[360px] flex-1 space-y-2.5 rounded-2xl border-2 border-dashed p-2.5 transition-all duration-200",
-                    status === "follow_up" && "border-violet-200/80 bg-gradient-to-b from-violet-50/90 to-violet-50/20",
-                    status !== "follow_up" && "border-slate-200/80 bg-slate-100/50",
-                    snapshot.isDraggingOver && "border-indigo-400 bg-indigo-50/70 ring-2 ring-indigo-200/50",
-                  )}
-                >
-                  {grouped[status].map((lead, index) => (
-                    <LeadCard key={lead.id} lead={lead} index={index} />
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </div>
-        ))}
-      </div>
-    </DragDropContext>
+          ))}
+        </div>
+      </DragDropContext>
+    </div>
   );
 }

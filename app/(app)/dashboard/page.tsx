@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { NewLeadButton } from "@/components/leads/new-lead-button";
 import { attentionLabel, formatParado } from "@/lib/followup";
+import { LEAD_LIST_COLUMNS } from "@/lib/leads-columns";
 
 export const dynamic = "force-dynamic";
 
@@ -60,9 +61,10 @@ export default async function DashboardPage() {
 
   const { data: raw, error } = await supabase
     .from("leads")
-    .select("*")
+    .select(LEAD_LIST_COLUMNS)
     .eq("organization_id", organizationId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(400);
 
   if (error) {
     return (
@@ -103,7 +105,7 @@ export default async function DashboardPage() {
           <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600">Visão geral</p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">Painel</h1>
           <p className="mt-2 max-w-2xl text-slate-600">
-            Leads da página pública e cadastros manuais, organizados no funil. Métricas calculadas em tempo real.
+            Quem entrou pela sua página ou foi cadastrado manualmente — métricas e alertas em um só lugar.
           </p>
         </div>
         <NewLeadButton organizationId={organizationId} className="self-start lg:self-auto" />
@@ -112,7 +114,7 @@ export default async function DashboardPage() {
       {stats.attentionCount > 0 && (
         <Link
           href="/follow-up"
-          className="group flex items-center justify-between gap-4 rounded-2xl border border-amber-200/90 bg-gradient-to-r from-amber-50 to-orange-50/90 p-5 shadow-sm transition hover:border-amber-300"
+          className="group flex items-center justify-between gap-4 rounded-2xl border border-amber-200/90 bg-gradient-to-r from-amber-50 to-orange-50/90 p-5 shadow-sm transition hover:border-amber-300 hover:shadow-sm"
         >
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
@@ -429,7 +431,7 @@ function StatCard({
 
   return (
     <div
-      className={`rounded-2xl border border-slate-200/80 bg-gradient-to-br ${ring} p-5 shadow-sm ring-1 transition-shadow hover:shadow-md`}
+      className={`rounded-2xl border border-slate-200/80 bg-gradient-to-br ${ring} p-5 shadow-sm ring-1`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="rounded-lg bg-white/95 p-2 ring-1 ring-slate-200/60">
