@@ -1,8 +1,26 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { PublicLanding, type PublicOrgPayload } from "@/components/landing/public-landing";
+import { SimpleLanding } from "@/components/public-landing/layouts/SimpleLanding";
+import { PremiumLanding } from "@/components/public-landing/layouts/PremiumLanding";
+import type { LandingLayout, PublicOrgPayload } from "@/components/public-landing/types";
 
 export const dynamic = "force-dynamic";
+
+function coercePayload(row: unknown): PublicOrgPayload | null {
+  if (!row || typeof row !== "object") return null;
+  const r = row as Record<string, unknown>;
+  const layout = r.landing_layout === "premium" ? "premium" : "simple";
+  return {
+    id: String(r.id),
+    name: String(r.name ?? ""),
+    slug: String(r.slug ?? ""),
+    whatsapp_number: String(r.whatsapp_number ?? ""),
+    titulo_landing: String(r.titulo_landing ?? ""),
+    descricao_landing: String(r.descricao_landing ?? ""),
+    ativo: Boolean(r.ativo),
+    landing_layout: layout as LandingLayout,
+  };
+}
 
 export default async function PublicLandingPage({
   params,
@@ -17,8 +35,12 @@ export default async function PublicLandingPage({
 
   if (error) notFound();
 
-  const row = Array.isArray(data) ? (data[0] as PublicOrgPayload | undefined) : (data as PublicOrgPayload | null);
+  const raw = Array.isArray(data) ? data[0] : data;
+  const row = coercePayload(raw);
   if (!row || !row.ativo) notFound();
 
-  return <PublicLanding org={row} slug={slug} />;
+  if (row.landing_layout === "premium") {
+    return <PremiumLanding org={row} slug={slug} />;
+  }
+  return <SimpleLanding org={row} slug={slug} />;
 }
