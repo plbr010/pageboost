@@ -4,7 +4,7 @@ import { appBaseUrl, getStripe } from "@/lib/stripe-server";
 export const runtime = "nodejs";
 
 const USER_ERR =
-  "Não foi possível abrir o pagamento. Verifique as configurações da Stripe ou tente novamente.";
+  "Não foi possível abrir o pagamento. Verifique as configurações da Stripe ou fale conosco.";
 
 function criticalMissingEnv(withSetup: boolean): string[] {
   const out: string[] = [];
