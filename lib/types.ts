@@ -20,8 +20,6 @@ export type LeadRow = {
   updated_at: string;
 };
 
-export type OrgLandingLayout = "simple" | "premium";
-
 export type OrgRow = {
   id: string;
   name: string;
@@ -30,6 +28,5 @@ export type OrgRow = {
   titulo_landing: string;
   descricao_landing: string;
   ativo: boolean;
-  landing_layout?: OrgLandingLayout;
   created_at: string;
 };

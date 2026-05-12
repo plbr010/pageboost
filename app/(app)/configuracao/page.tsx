@@ -20,7 +20,6 @@ export default async function ConfiguracaoPage() {
 
   const settingsFormKey = [
     organization.slug,
-    organization.landing_layout ?? "simple",
     organization.name,
     organization.whatsapp_number,
     organization.titulo_landing,

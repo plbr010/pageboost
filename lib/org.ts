@@ -17,7 +17,7 @@ export async function ensureOrganization(
 
   const { data: organization } = await supabase
     .from("organizations")
-    .select("id, name, slug, whatsapp_number, titulo_landing, descricao_landing, ativo, landing_layout, created_at")
+    .select("id, name, slug, whatsapp_number, titulo_landing, descricao_landing, ativo, created_at")
     .eq("id", id)
     .maybeSingle();
 

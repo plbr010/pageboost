@@ -1,5 +1,3 @@
-export type LandingLayout = "simple" | "premium";
-
 export type PublicOrgPayload = {
   id: string;
   name: string;
@@ -8,5 +6,4 @@ export type PublicOrgPayload = {
   titulo_landing: string;
   descricao_landing: string;
   ativo: boolean;
-  landing_layout: LandingLayout;
 };

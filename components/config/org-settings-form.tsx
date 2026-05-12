@@ -3,11 +3,10 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { OrgLandingLayout, OrgRow } from "@/lib/types";
+import type { OrgRow } from "@/lib/types";
 import { getPublicBaseUrlClient } from "@/lib/url-client";
 import { isValidOrgSlug, normalizeOrgSlug } from "@/lib/slug";
-import { cn } from "@/lib/cn";
-import { Building2, Check, Copy, ExternalLink, Globe, LayoutTemplate, MessageCircle, Sparkles } from "lucide-react";
+import { Building2, Check, Copy, ExternalLink, Globe, MessageCircle, Sparkles } from "lucide-react";
 
 function CopyLinkButton({ url }: { url: string }) {
   const [state, setState] = useState<"idle" | "copied">("idle");
@@ -45,15 +44,12 @@ export function OrgSettingsForm({ organization }: { organization: OrgRow }) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
-  const initialLayout: OrgLandingLayout = organization.landing_layout === "premium" ? "premium" : "simple";
-
   const [name, setName] = useState(organization.name);
   const [slug, setSlug] = useState(organization.slug);
   const [whatsapp, setWhatsapp] = useState(organization.whatsapp_number);
   const [titulo, setTitulo] = useState(organization.titulo_landing);
   const [descricao, setDescricao] = useState(organization.descricao_landing);
   const [ativo, setAtivo] = useState(organization.ativo);
-  const [landingLayout, setLandingLayout] = useState<OrgLandingLayout>(initialLayout);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -84,10 +80,9 @@ export function OrgSettingsForm({ organization }: { organization: OrgRow }) {
           titulo_landing: titulo.trim(),
           descricao_landing: descricao.trim(),
           ativo,
-          landing_layout: landingLayout,
         })
         .eq("id", organization.id)
-        .select("slug, landing_layout")
+        .select("slug")
         .maybeSingle();
       if (error) {
         if (error.code === "23505" || error.message.includes("unique") || error.message.includes("duplicate")) {
@@ -98,17 +93,7 @@ export function OrgSettingsForm({ organization }: { organization: OrgRow }) {
       if (!saved) {
         throw new Error("Não foi possível confirmar o salvamento. Verifique se você é dono(a) da organização.");
       }
-      const rawSavedLayout = String((saved as { landing_layout?: string | null }).landing_layout ?? "")
-        .trim()
-        .toLowerCase();
-      const persisted: OrgLandingLayout = rawSavedLayout === "premium" ? "premium" : "simple";
-      setLandingLayout(persisted);
       setSlug(String((saved as { slug?: string }).slug ?? nextSlug));
-      if (persisted !== landingLayout) {
-        setMsg(
-          "O layout salvo no banco não bate com a sua escolha. Rode a migração SQL mais recente no Supabase (landing_layout + get_public_org_by_slug) ou verifique permissões de dono da organização.",
-        );
-      }
       router.refresh();
     } catch (err) {
       setMsg(err instanceof Error ? err.message : "Não foi possível salvar");
@@ -177,65 +162,10 @@ export function OrgSettingsForm({ organization }: { organization: OrgRow }) {
           </label>
         </div>
 
-        <div className="mt-10 border-t border-slate-100 pt-8">
-          <div className="flex gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">
-              <LayoutTemplate className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900">Aparência da página pública</h3>
-              <p className="mt-1 text-sm text-slate-600">
-                Escolha como sua página pública será exibida para os clientes que vão preencher os dados antes de chamar
-                no WhatsApp.
-              </p>
-            </div>
-          </div>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={() => setLandingLayout("simple")}
-              className={cn(
-                "rounded-2xl border-2 p-5 text-left transition",
-                landingLayout === "simple"
-                  ? "border-indigo-500 bg-indigo-50/80 shadow-sm ring-2 ring-indigo-200/60"
-                  : "border-slate-200 bg-white hover:border-slate-300",
-              )}
-            >
-              <p className="text-xs font-bold uppercase tracking-wider text-indigo-600">Simples</p>
-              <p className="mt-2 text-sm font-semibold text-slate-900">Direto ao ponto</p>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                Formulário em destaque. Ideal para captar leads rápido.
-              </p>
-            </button>
-            <button
-              type="button"
-              onClick={() => setLandingLayout("premium")}
-              className={cn(
-                "rounded-2xl border-2 p-5 text-left transition",
-                landingLayout === "premium"
-                  ? "border-indigo-500 bg-indigo-50/80 shadow-sm ring-2 ring-indigo-200/60"
-                  : "border-slate-200 bg-white hover:border-slate-300",
-              )}
-            >
-              <p className="text-xs font-bold uppercase tracking-wider text-violet-700">Premium</p>
-              <p className="mt-2 text-sm font-semibold text-slate-900">Visual mais elaborado</p>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                Benefícios e seções extras com aparência mais profissional.
-              </p>
-            </button>
-          </div>
-        </div>
-
         <div className="mt-8 rounded-2xl border border-slate-200/90 bg-slate-50/80 p-5">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Prévia da página pública</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Prévia do texto</p>
           <p className="mt-3 text-lg font-semibold leading-snug text-slate-900">{titulo || "Título da página"}</p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-600">
-            {descricao || "Descrição curta aparecerá aqui."}
-          </p>
-          <p className="mt-3 text-xs text-slate-500">
-            Layout escolhido: <strong className="text-slate-700">{landingLayout === "premium" ? "Premium" : "Simples"}</strong>
-          </p>
-          <div className="mt-4 h-2 w-24 rounded-full bg-slate-200" aria-hidden />
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">{descricao || "Descrição curta aparecerá aqui."}</p>
         </div>
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2">
