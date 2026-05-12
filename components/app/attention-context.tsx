@@ -23,7 +23,9 @@ export function AttentionProvider({
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    setCount(initialCount);
+    queueMicrotask(() => {
+      setCount(initialCount);
+    });
   }, [initialCount]);
 
   const refresh = useCallback(async () => {

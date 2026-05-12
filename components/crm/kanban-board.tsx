@@ -119,7 +119,9 @@ export function KanbanBoard({
   const [persistError, setPersistError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLeads(initialLeads);
+    queueMicrotask(() => {
+      setLeads(initialLeads);
+    });
   }, [initialLeads]);
 
   const grouped = useMemo(() => groupByStatus(leads), [leads]);

@@ -12,26 +12,28 @@ export function PendingFollowupBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (count === 0) {
-      try {
-        sessionStorage.removeItem(STORAGE_KEY);
-      } catch {
-        /* */
-      }
-      setDismissed(false);
-      return;
-    }
-    try {
-      const until = sessionStorage.getItem(STORAGE_KEY);
-      if (!until || Number.isNaN(Number(until)) || Date.now() > Number(until)) {
-        if (until) sessionStorage.removeItem(STORAGE_KEY);
+    queueMicrotask(() => {
+      if (count === 0) {
+        try {
+          sessionStorage.removeItem(STORAGE_KEY);
+        } catch {
+          /* */
+        }
         setDismissed(false);
         return;
       }
-      setDismissed(true);
-    } catch {
-      setDismissed(false);
-    }
+      try {
+        const until = sessionStorage.getItem(STORAGE_KEY);
+        if (!until || Number.isNaN(Number(until)) || Date.now() > Number(until)) {
+          if (until) sessionStorage.removeItem(STORAGE_KEY);
+          setDismissed(false);
+          return;
+        }
+        setDismissed(true);
+      } catch {
+        setDismissed(false);
+      }
+    });
   }, [count]);
 
   if (count <= 0 || dismissed) return null;

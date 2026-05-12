@@ -18,6 +18,16 @@ export default async function ConfiguracaoPage() {
     );
   }
 
+  const settingsFormKey = [
+    organization.slug,
+    organization.landing_layout ?? "simple",
+    organization.name,
+    organization.whatsapp_number,
+    organization.titulo_landing,
+    organization.descricao_landing,
+    String(organization.ativo),
+  ].join("|");
+
   return (
     <div className="space-y-10">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -33,7 +43,7 @@ export default async function ConfiguracaoPage() {
           </p>
         </div>
       </div>
-      <OrgSettingsForm organization={organization as OrgRow} />
+      <OrgSettingsForm key={settingsFormKey} organization={organization as OrgRow} />
     </div>
   );
 }

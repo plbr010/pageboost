@@ -132,10 +132,10 @@ export function LandingPage() {
               Entrar
             </Link>
             <Link
-              href="/login"
+              href="/founder"
               className="rounded-full bg-gradient-to-r from-indigo-500 to-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-indigo-900/20 transition hover:brightness-105"
             >
-              Começar
+              Começar por R$97/mês
             </Link>
           </nav>
         </div>
@@ -157,10 +157,10 @@ export function LandingPage() {
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
-                href="/login"
+                href="/founder"
                 className="group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-violet-600 px-8 py-3.5 text-sm font-semibold text-white shadow-md shadow-indigo-900/25 transition hover:brightness-105"
               >
-                Quero minha página com painel
+                Começar por R$97/mês
                 <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
               </Link>
               <a
@@ -264,9 +264,11 @@ export function LandingPage() {
             <div className="mt-6 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-4xl font-bold text-white sm:text-5xl">
-                  R$297 <span className="text-lg font-semibold text-slate-400">implantação</span>
+                  R$97<span className="text-lg font-semibold text-slate-400">/mês</span>
                 </p>
-                <p className="mt-2 text-2xl font-semibold text-indigo-200">+ R$97/mês</p>
+                <p className="mt-2 text-sm font-medium text-indigo-200/95">
+                  Ativação assistida opcional por R$197.
+                </p>
               </div>
               <ul className="grid gap-2 text-sm text-slate-300 sm:grid-cols-2">
                 {[
@@ -286,10 +288,10 @@ export function LandingPage() {
             </div>
             <div className="mt-10">
               <Link
-                href="/login"
+                href="/founder"
                 className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-slate-900 transition hover:bg-slate-100"
               >
-                Quero minha página com painel
+                Começar por R$97/mês
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -323,6 +325,9 @@ export function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-8 px-4 sm:flex-row sm:px-6">
           <LogoWordmark size="sm" variant="onDark" />
           <div className="flex flex-wrap justify-center gap-6 text-sm text-slate-500">
+            <Link href="/founder" className="transition hover:text-white">
+              Plano Founder
+            </Link>
             <Link href="/login" className="transition hover:text-white">
               Entrar
             </Link>

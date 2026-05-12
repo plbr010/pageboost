@@ -31,7 +31,33 @@ export function normalizeOrgSlug(raw: string): string {
     if (extracted) return finalizeSlug(extracted);
   }
 
+  const recovered = recoverSlugFromSlugifiedHosting(trimmed);
+  if (recovered) return recovered;
+
   return finalizeSlug(trimmed);
+}
+
+/**
+ * Recupera slug legível quando o valor foi gerado a partir de um host inteiro
+ * trocando pontos por hífens (ex.: https-pageboosteur-vercel-app → pageboosteur).
+ */
+function recoverSlugFromSlugifiedHosting(trimmed: string): string | null {
+  const lowered = trimmed.toLowerCase();
+  const hostTailPatterns = [
+    /^https?-(.+)-vercel-app$/i,
+    /^https?-(.+)-vercel-dev$/i,
+    /^https?-(.+)-netlify-app$/i,
+    /^https?-(.+)-github-io$/i,
+  ];
+  for (const re of hostTailPatterns) {
+    const m = lowered.match(re);
+    if (m?.[1]) {
+      const inner = m[1].replace(/^www-/, "");
+      const out = finalizeSlug(inner);
+      if (out) return out;
+    }
+  }
+  return null;
 }
 
 function extractSlugHintFromUrlLike(input: string): string | null {

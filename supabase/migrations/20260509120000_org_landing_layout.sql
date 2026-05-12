@@ -14,6 +14,9 @@ alter table public.organizations
   add constraint organizations_landing_layout_check
   check (landing_layout in ('simple', 'premium'));
 
+-- Postgres não permite mudar o tipo de retorno só com CREATE OR REPLACE
+drop function if exists public.get_public_org_by_slug(text);
+
 create or replace function public.get_public_org_by_slug(p_slug text)
 returns table (
   id uuid,
