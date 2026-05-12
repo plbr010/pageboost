@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import { createPublicAnonClient } from "@/lib/supabase/public-anon";
 import { SimpleLanding } from "@/components/public-landing/layouts/SimpleLanding";
@@ -30,6 +31,7 @@ export default async function PublicLandingPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  noStore();
   const { slug: slugParam } = await params;
   const slug = decodeURIComponent(slugParam ?? "").trim();
   if (!slug) notFound();

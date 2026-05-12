@@ -75,7 +75,7 @@ export function OrgSettingsForm({ organization }: { organization: OrgRow }) {
           "Endereço inválido ou reservado. Use um nome curto (ex.: minha-empresa). Se colou um link completo, salvamos só o trecho final do endereço.",
         );
       }
-      const { error } = await supabase
+      const { data: saved, error } = await supabase
         .from("organizations")
         .update({
           name: name.trim(),
@@ -86,14 +86,29 @@ export function OrgSettingsForm({ organization }: { organization: OrgRow }) {
           ativo,
           landing_layout: landingLayout,
         })
-        .eq("id", organization.id);
+        .eq("id", organization.id)
+        .select("slug, landing_layout")
+        .maybeSingle();
       if (error) {
         if (error.code === "23505" || error.message.includes("unique") || error.message.includes("duplicate")) {
           throw new Error("Este endereço já está em uso. Escolha outro slug.");
         }
         throw error;
       }
-      setSlug(nextSlug);
+      if (!saved) {
+        throw new Error("Não foi possível confirmar o salvamento. Verifique se você é dono(a) da organização.");
+      }
+      const rawSavedLayout = String((saved as { landing_layout?: string | null }).landing_layout ?? "")
+        .trim()
+        .toLowerCase();
+      const persisted: OrgLandingLayout = rawSavedLayout === "premium" ? "premium" : "simple";
+      setLandingLayout(persisted);
+      setSlug(String((saved as { slug?: string }).slug ?? nextSlug));
+      if (persisted !== landingLayout) {
+        setMsg(
+          "O layout salvo no banco não bate com a sua escolha. Rode a migração SQL mais recente no Supabase (landing_layout + get_public_org_by_slug) ou verifique permissões de dono da organização.",
+        );
+      }
       router.refresh();
     } catch (err) {
       setMsg(err instanceof Error ? err.message : "Não foi possível salvar");
